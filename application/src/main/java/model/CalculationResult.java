@@ -6,11 +6,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import util.BaseObject;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = { "result" })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CalculationResult extends BaseObject {
 
 	@XmlElement(name = "result", required = true)

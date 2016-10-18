@@ -8,10 +8,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import hystrix.CalcSumServiceCall;
 import io.swagger.annotations.Api;
 import model.CalculationOperation;
-import model.CalculationTerm;
 import model.CalculationResult;
+import model.CalculationTerm;
+import model.SimpleCalculationRequest;
 
 @Stateless
 @Path("calculation")
@@ -23,6 +25,16 @@ public class CalculationService extends AbstractService {
 	@POST
 	public CalculationResult calculate(CalculationTerm request) {
 		LOG.debug("Request", request);
+
+		try {
+			CalcSumServiceCall call = new CalcSumServiceCall(new SimpleCalculationRequest(10, 20));
+			CalculationResult result = call.execute();
+
+			LOG.debug("Message from Bluemix", result.result);
+		} catch (Exception e) {
+			LOG.error("eeor during test", e.getMessage());
+		}
+
 		return new CalculationResult(10);
 	}
 
