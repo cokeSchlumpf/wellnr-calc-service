@@ -1,5 +1,6 @@
 package ws;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -8,8 +9,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import hystrix.CalcSumServiceCall;
+import calls.CalcSumServiceCall;
+import exceptions.ServiceError;
+import exceptions.WebApplicationException;
 import io.swagger.annotations.Api;
+import mgmt.MgmtBean;
 import model.CalculationOperation;
 import model.CalculationResult;
 import model.CalculationTerm;
@@ -22,20 +26,40 @@ import model.SimpleCalculationRequest;
 @Api("calculation-service for adding numbers")
 public class CalculationService extends AbstractService {
 
+	@EJB
+	MgmtBean mgmtBean;
+
 	@POST
 	public CalculationResult calculate(CalculationTerm request) {
-		LOG.debug("Request", request);
-
 		try {
-			CalcSumServiceCall call = new CalcSumServiceCall(new SimpleCalculationRequest(10, 20));
-			CalculationResult result = call.execute();
-
-			LOG.debug("Message from Bluemix", result.result);
+			return new CalculationResult(calculateTerm(request));
 		} catch (Exception e) {
-			LOG.error("eeor during test", e.getMessage());
+			throw new WebApplicationException(e, ServiceError.CalculationError(request));
 		}
+	}
 
-		return new CalculationResult(10);
+	private int calculateTerm(CalculationTerm request) {
+		if (request.operation != null) {
+			int n1 = calculateTerm(request.left);
+			int n2 = calculateTerm(request.right);
+			CalculationResult result;
+
+			if (request.operation.equals(CalculationOperation.ADD)) {
+				result = new CalcSumServiceCall( //
+						mgmtBean.getServiceDisoveryCredentials(), //
+						new SimpleCalculationRequest(n1, n2)) //
+								.execute();
+			} else {
+				result = new CalcSumServiceCall( //
+						mgmtBean.getServiceDisoveryCredentials(), //
+						new SimpleCalculationRequest(n1, n2)) //
+								.execute();
+			}
+
+			return result.result;
+		} else {
+			return request.value.intValue();
+		}
 	}
 
 	@GET

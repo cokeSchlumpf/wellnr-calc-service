@@ -16,6 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import model.CalculationTerm;
 import util.BaseObject;
 
 @XmlRootElement
@@ -76,6 +77,12 @@ public class ServiceError extends BaseObject {
 				Lists.newArrayList( //
 						Pair.of("message", e.getMessage()), //
 						Pair.of("username", username)));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static ServiceError CalculationError(CalculationTerm term) {
+		return new ServiceError(503, 3, "Unable to calculate term.", Lists.newArrayList( //
+				Pair.of("term", term.toString())));
 	}
 
 }

@@ -27,7 +27,7 @@ public class CalculationTerm extends BaseObject {
 	public final CalculationTerm right;
 
 	@XmlElement(name = "value")
-	private final Integer value;
+	public final Integer value;
 
 	/**
 	 * Constructor for instantiation via JAXB
